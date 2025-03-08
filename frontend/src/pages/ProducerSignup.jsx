@@ -97,14 +97,14 @@ const ProducerSignup = () => {
         password,
       });
 
-      console.log("Signup Successful:", response.data);
-
-      localStorage.setItem("token", response.data.token);
 
 
-
-      navigate("/producer-login");
-
+      if (response.status === 201) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("producerId", response.data.producer._id);
+        setSuccessMessage("Signup successful! Redirecting...");
+        navigate("/producer-login")// Redirect
+      }
     } catch (error) {
       console.error("Signup Failed:", error.response?.data || error.message);
       setError(error.response?.data?.message || "Signup failed. Please try again.");

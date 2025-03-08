@@ -15,6 +15,15 @@ const getAllCredits = async (req, res) => {
     }
 };
 
+const getOtherCredits = async (req, res) => {
+    try {
+        const credits = await Credit.find({ producerId: { $ne: req.params.id } }).populate('producerId');
+        res.status(200).json(credits);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch credits', error: error.message });
+    }
+};
+
 const buyCredits = async (req, res) => {
     const { consumerId, creditId, amount } = req.body;
 
@@ -77,5 +86,5 @@ const createCredit = async (req, res) => {
     }
 };
 module.exports = {
-    getAllCredits, createCredit, buyCredits
+    getAllCredits, createCredit, buyCredits, getOtherCredits
 }

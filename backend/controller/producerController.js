@@ -32,6 +32,7 @@ exports.getProducerById = async (req, res) => {
         if (!producer) {
             return res.status(404).json({ message: 'Producer not found' });
         }
+        console.log(producer);
         res.status(200).json(producer);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch producer', error: error.message });
@@ -51,8 +52,8 @@ exports.getProducerCredits = async (req, res) => {
 // Update producer wallet balance
 exports.updateProducer = async (req, res) => {
     try {
-        const { creduitAvailable, walletBalance } = req.body;
-        const producer = await Producer.findByIdAndUpdate(req.params.id, { creduitAvailable, walletBalance }, { new: true });
+        const { creditAvailable, walletBalance } = req.body;
+        const producer = await Producer.findByIdAndUpdate(req.params.id, { creditAvailable, walletBalance }, { new: true });
         if (!producer) {
             return res.status(404).json({ message: 'Producer not found' });
         }
@@ -113,7 +114,7 @@ exports.login = async (req, res) => {
         // Generate JWT token
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ token });
+        res.status(200).json({ token, _id });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }

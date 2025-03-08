@@ -4,10 +4,14 @@ const {
     getAllCredits,
     createCredit,
     buyCredits,
+    getOtherCredits
 } = require('../controller/creditController');
 
 // Get all available credits
 router.get('/', getAllCredits);
+
+// Get all credits except for the producer's own credits
+router.get('/:id', getOtherCredits);
 
 // Create new credits for producers
 router.post('/', createCredit);
