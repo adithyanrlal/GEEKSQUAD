@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Validation rules for signup
 const signupValidation = [
+    body('name').notEmpty().withMessage('Name is required'),
     body('email').isEmail().withMessage('Enter a valid email address'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
 ];
