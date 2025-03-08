@@ -12,10 +12,10 @@ exports.getAllProducers = async (req, res) => {
 };
 
 exports.createProducer = async (req, res) => {
-    const { name, email } = req.body;
+    const { name, email, walletBalance, creditsAvailable } = req.body;
     try {
         const producer = await
-            Producer.create({ name, email });
+            Producer.create({ name, email, walletBalance, creditsAvailable });
         res.status(201).json(producer);
     } catch (error) {
         res.status(400).json({ message: 'Failed to create producer', error: error.message });

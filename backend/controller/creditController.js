@@ -28,6 +28,7 @@ const buyCredits = async (req, res) => {
         }
 
         const totalCost = amount * credit.pricePerSEC;
+        console.log(credit.creditsAvailable, amount);
 
         if (consumer.walletBalance < totalCost) {
             return res.status(400).json({ message: 'Insufficient balance' });
@@ -46,6 +47,10 @@ const buyCredits = async (req, res) => {
 
         await consumer.save();
         await producer.save();
+        if (credit.creditsAvailable === 0) {
+            await credit.remove();
+            return res.status(200).json({ message: 'Transaction successful', amount, totalCost });
+        }
         await credit.save();
 
         res.status(200).json({ message: 'Transaction successful', amount, totalCost });

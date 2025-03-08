@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 export default function CreditsPage() {
     const [credits, setCredits] = useState([]);
-    const [consumerId, setConsumerId] = useState('consumer_object_id_here'); // Replace with actual consumer ID
+    const [consumerId, setConsumerId] = useState('67cc443689565fff224f3517'); // Replace with actual consumer ID
 
     useEffect(() => {
         const fetchCredits = async () => {
             try {
-                const res = await fetch('/api/credits');
-                const data = await res.json();
-                setCredits(data);
+                const res = await axios.get('http://localhost:3000/api/credits');
+                console.log(res.data);
+                setCredits(res.data);
             } catch (err) {
                 console.error('Error fetching credits:', err);
             }
@@ -19,14 +20,13 @@ export default function CreditsPage() {
 
     const handleBuy = async (producerId, amount) => {
         try {
-            const res = await fetch('/api/buy', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ consumerId, producerId, amount }),
+            const res = await axios.post('http://localhost:3000/api/credits/buy', {
+                consumerId,
+                producerId,
+                amount,
             });
 
-            const data = await res.json();
-            if (res.ok) {
+            if (res.status === 200) {
                 alert(`Purchase successful! You bought ${amount} SECs.`);
                 // Refresh the credits list to show updated amounts
                 setCredits((prevCredits) =>
@@ -37,7 +37,7 @@ export default function CreditsPage() {
                     )
                 );
             } else {
-                alert(data.message || 'Purchase failed.');
+                alert(res.data.message || 'Purchase failed.');
             }
         } catch (err) {
             console.error('Error processing purchase:', err);
@@ -60,12 +60,12 @@ export default function CreditsPage() {
                     <tbody>
                         {credits.map((credit) => (
                             <tr key={credit.id} className="border-b hover:bg-green-50">
-                                <td className="p-4">{credit.producer}</td>
-                                <td className="p-4">${credit.price.toFixed(2)}</td>
-                                <td className="p-4">{credit.available} SECs</td>
+                                <td className="p-4">{credit.producerId}</td>
+                                <td className="p-4">${credit.pricePerSEC.toFixed(2)}</td>
+                                <td className="p-4">{credit.creditsAvailable} SECs</td>
                                 <td className="p-4">
                                     <button
-                                        onClick={() => handleBuy(credit.id, 10)} // Buy 10 SECs by default
+                                        onClick={() => handleBuy(credit._id, 10)} // Buy 10 SECs by default
                                         className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
                                     >
                                         Buy

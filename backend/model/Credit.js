@@ -5,10 +5,7 @@ const CreditSchema = new mongoose.Schema({
         ref: 'Producer',
         required: true,
     },
-    producerName: {
-        type: String,
-        required: true,
-    },
+
     pricePerSEC: {
         type: Number,
         required: true,
