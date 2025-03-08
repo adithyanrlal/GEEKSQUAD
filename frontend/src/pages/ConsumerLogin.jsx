@@ -1,19 +1,39 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const ConsumerLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate(); // For redirecting after login
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+
     if (!email || !password) {
       setError("Please fill in all fields");
       return;
     }
-    setError("");
-    console.log("Logging in with", { email, password });
+
+    try {
+      const response = await axios.post("http://localhost:3000/users/login", {
+        email,
+        password,
+      });
+
+      console.log("Login Response:", response.data);
+
+      // Store token in local storage
+      localStorage.setItem("token", response.data.token);
+
+      // Redirect after successful login
+      navigate("/consumer-dashboard");
+
+    } catch (error) {
+      console.error("Login Error:", error);
+      setError(error.response?.data?.message || "Login failed. Please try again.");
+    }
   };
 
   return (
@@ -50,13 +70,11 @@ const ConsumerLogin = () => {
           </button>
         </form>
         <p className="text-sm text-center mt-3">
-          Don't have an account? <Link  to='/consumer-signup' className="text-green-600">Sign Up</Link>
+          Don't have an account? <Link to="/consumer-signup" className="text-green-600">Sign Up</Link>
         </p>
-       <Link to='/Producer-login'
-               className="block text-center bg-blue-600 text-white p-2 rounded hover:bg-green-700 mt-4"
-             >
-               Login in as Producer
-             </Link>
+        <Link to="/producer-login" className="block text-center bg-blue-600 text-white p-2 rounded hover:bg-green-700 mt-4">
+          Login as Producer
+        </Link>
       </div>
     </div>
   );
