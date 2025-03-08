@@ -8,7 +8,7 @@ const FIXED_PRICE_PER_SEC = 0.1;
 
 const getAllCredits = async (req, res) => {
     try {
-        const credits = await Credit.find();
+        const credits = await Credit.find().populate('producerId');
         res.status(200).json(credits);
     } catch (error) {
         res.status(500).json({ message: 'Failed to fetch credits', error: error.message });

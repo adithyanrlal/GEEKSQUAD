@@ -59,8 +59,8 @@ export default function CreditsPage() {
                     </thead>
                     <tbody>
                         {credits.map((credit) => (
-                            <tr key={credit.id} className="border-b hover:bg-green-50">
-                                <td className="p-4">{credit.producerId}</td>
+                            <tr key={credit._id} className="border-b hover:bg-green-50">
+                                <td className="p-4">{credit.producerId.name}</td>
                                 <td className="p-4">${credit.pricePerSEC.toFixed(2)}</td>
                                 <td className="p-4">{credit.creditsAvailable} SECs</td>
                                 <td className="p-4">

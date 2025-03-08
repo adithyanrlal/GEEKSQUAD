@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import axios from 'axios';
 import clsx from 'clsx';
+import React, { useState, useEffect, useRef } from 'react';
 
 const credits = [
     { id: 1, producer: 'Green Solar Ltd.', price: 0.10, available: 100 },
@@ -11,6 +12,10 @@ const credits = [
 ];
 
 const Consumer_Home = () => {
+
+    const [credits, setCredits] = useState([]);
+    const [consumerId, setConsumerId] = useState('67cc443689565fff224f3517'); // Replace with actual consumer ID
+
     const [walletBalance, setWalletBalance] = useState(500);
     const [availableCredits, setAvailableCredits] = useState(300);
     const [expandedCard, setExpandedCard] = useState(null);
@@ -23,22 +28,61 @@ const Consumer_Home = () => {
     };
 
     // Close dropdown when clicking outside
+    // useEffect(() => {
+    //     const handleOutsideClick = (event) => {
+    //         if (walletRef.current && !walletRef.current.contains(event.target)) {
+    //             setWalletOpen(false);
+    //         }
+    //     };
+    //     document.addEventListener('mousedown', handleOutsideClick);
+    //     return () => {
+    //         document.removeEventListener('mousedown', handleOutsideClick);
+    //     };
+    // }, []);
+
     useEffect(() => {
-        const handleOutsideClick = (event) => {
-            if (walletRef.current && !walletRef.current.contains(event.target)) {
-                setWalletOpen(false);
+        const fetchCredits = async () => {
+            try {
+                const res = await axios.get('http://localhost:3000/api/credits');
+                console.log(res.data);
+                setCredits(res.data);
+            } catch (err) {
+                console.error('Error fetching credits:', err);
             }
         };
-        document.addEventListener('mousedown', handleOutsideClick);
-        return () => {
-            document.removeEventListener('mousedown', handleOutsideClick);
-        };
+        fetchCredits();
     }, []);
+
+    const handleBuy = async (creditId, amount) => {
+        try {
+            const res = await axios.post('http://localhost:3000/api/credits/buy', {
+                consumerId,
+                creditId,
+                amount,
+            });
+
+            if (res.status === 200) {
+                alert(`Purchase successful! You bought ${amount} SECs.`);
+                // Refresh the credits list to show updated amounts
+                setCredits((prevCredits) =>
+                    prevCredits.map((credit) =>
+                        credit.id === producerId
+                            ? { ...credit, available: credit.available - amount }
+                            : credit
+                    )
+                );
+            } else {
+                alert(res.data.message || 'Purchase failed.');
+            }
+        } catch (err) {
+            console.error('Error processing purchase:', err);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-200">
             {/* Navigation */}
-            <nav className="bg-white shadow-md mb-8">
+            {/* <nav className="bg-white shadow-md mb-8">
                 <div className="container mx-auto px-6 py-4 flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-blue-600">Consumer Portal</h1>
                     <ul className="flex space-x-8">
@@ -70,7 +114,7 @@ const Consumer_Home = () => {
                         </li>
                     </ul>
                 </div>
-            </nav>
+            </nav> */}
 
             {/* Available Solar Credits */}
             <h1 className="text-5xl font-extrabold text-center text-green-700 mb-12 drop-shadow-md">
@@ -80,36 +124,33 @@ const Consumer_Home = () => {
             <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {credits.map((credit) => (
                     <div
-                        key={credit.id}
-                        onClick={() => handleCardClick(credit.id)}
+                        key={credit._id}
                         className={clsx(
                             "bg-white rounded-xl shadow-md p-6 flex flex-col justify-between transition-all duration-500 cursor-pointer",
-                            {
-                                "scale-105 shadow-2xl": expandedCard === credit.id,
-                            }
+
                         )}
                     >
                         <h2 className="text-2xl font-semibold text-green-700 mb-4">
-                            {credit.producer}
+                            {credit.producerId.name}
                         </h2>
                         <p className="text-lg text-gray-600 mb-2">
-                            <span className="font-bold text-green-600">${credit.price.toFixed(2)}</span> per SEC
+                            <span className="font-bold text-green-600">${credit.pricePerSEC.toFixed(2)}</span> per SEC
                         </p>
-                        <p className="text-gray-500 mb-6">{credit.available} SECs available</p>
-                        <button className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md 
+                        <p className="text-gray-500 mb-6">{credit.creditsAvailable} SECs available</p>
+                        <button onClick={() => handleBuy(credit._id, 10)} className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md 
                             hover:bg-green-600 transition-all duration-200 focus:outline-none 
                             focus:ring-2 focus:ring-green-300 transform hover:-translate-y-1">
-                            Buy Now
+                            Buy 10 Credits Now
                         </button>
 
-                        {expandedCard === credit.id && (
+                        {/* {expandedCard === credit.id && (
                             <div className="mt-4 bg-green-50 p-4 rounded-lg shadow-inner">
                                 <h3 className="text-lg font-bold text-green-700 mb-2">More Information:</h3>
                                 <p className="text-gray-600">Producer: {credit.producer}</p>
                                 <p className="text-gray-600">Price per SEC: ${credit.price.toFixed(2)}</p>
                                 <p className="text-gray-600">Available: {credit.available} SECs</p>
                             </div>
-                        )}
+                        )} */}
                     </div>
                 ))}
             </div>
