@@ -14,14 +14,14 @@ const Consumer_Home = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-cyan-300">
       {/* Navbar */}
       <nav className="bg-white shadow-md mb-6">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-blue-600">Consumer Portal</h1>
           <ul className="flex space-x-8">
-            <li><a href="#" className="text-gray-700 hover:text-blue-500">Home</a></li>
-            <li><a href="#" className="text-gray-700 hover:text-blue-500">User Account</a></li>
+            <li><a href="#" className="text-black hover:text-blue-500">Home</a></li>
+            <li><a href="#" className="text-black hover:text-blue-500">User Account</a></li>
           </ul>
         </div>
       </nav>
