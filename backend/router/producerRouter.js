@@ -21,7 +21,7 @@ const loginValidation = [
 router.get('/', requireAuth, producerController.getAllProducers);
 router.get('/:id', requireAuth, producerController.getProducerById);
 router.post('/', requireAuth, producerController.createProducer);
-// router.put('/:id', producerController.updateProducer);
+router.patch('/:id', producerController.updateProducer);
 // router.delete('/:id', producerController.deleteProducer);
 
 router.post('/signup', signupValidation, producerController.signup);

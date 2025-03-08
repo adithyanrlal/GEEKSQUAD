@@ -49,10 +49,10 @@ exports.getProducerCredits = async (req, res) => {
 };
 
 // Update producer wallet balance
-exports.updateProducerWallet = async (req, res) => {
+exports.updateProducer = async (req, res) => {
     try {
-        const { walletBalance } = req.body;
-        const producer = await Producer.findByIdAndUpdate(req.params.id, { walletBalance }, { new: true });
+        const { creduitAvailable, walletBalance } = req.body;
+        const producer = await Producer.findByIdAndUpdate(req.params.id, { creduitAvailable, walletBalance }, { new: true });
         if (!producer) {
             return res.status(404).json({ message: 'Producer not found' });
         }
