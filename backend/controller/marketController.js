@@ -1,5 +1,5 @@
-const Consumer = require('../models/Consumer');
-const Producer = require('../models/Producer');
+const Consumer = require('../model/Consumer');
+const Producer = require('../model/Producer');
 // Buy credits at a fixed price
 const buyCredits = async (req, res) => {
     const { consumerId, producerId, amount } = req.body; // Amount in SECs

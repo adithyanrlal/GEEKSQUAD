@@ -1,0 +1,71 @@
+import Credit from '../model/Credit';
+import Consumer from '../model/Consumer';
+import Producer from '../model/Producer';
+
+const FIXED_PRICE_PER_SEC = 0.1;
+
+export const getAllCredits = async (req, res) => {
+    try {
+        const credits = await Credit.find();
+        res.status(200).json(credits);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch credits', error: error.message });
+    }
+};
+
+export const buyCredits = async (req, res) => {
+    const { consumerId, creditId, amount } = req.body;
+
+    try {
+        const consumer = await Consumer.findById(consumerId);
+        const credit = await Credit.findById(creditId);
+        const producer = await Producer.findById(credit.producerId);
+
+        if (!consumer || !credit || !producer) {
+            return res.status(404).json({ message: 'Consumer, Credit, or Producer not found' });
+        }
+
+        const totalCost = amount * credit.pricePerSEC;
+
+        if (consumer.walletBalance < totalCost) {
+            return res.status(400).json({ message: 'Insufficient balance' });
+        }
+
+        if (credit.creditsAvailable < amount) {
+            return res.status(400).json({ message: 'Not enough credits available' });
+        }
+
+        // Update balances
+        consumer.walletBalance -= totalCost;
+        consumer.creditsOwned += amount;
+
+        producer.walletBalance += totalCost;
+        credit.creditsAvailable -= amount;
+
+        await consumer.save();
+        await producer.save();
+        await credit.save();
+
+        res.status(200).json({ message: 'Transaction successful', amount, totalCost });
+    } catch (error) {
+        res.status(500).json({ message: 'Transaction failed', error: error.message });
+    }
+};
+
+export const createCredit = async (req, res) => {
+    const { producerId, producerName, creditsAvailable, pricePerSEC } = req.body;
+
+    try {
+        const newCredit = new Credit({
+            producerId,
+            producerName,
+            creditsAvailable,
+            pricePerSEC: pricePerSEC || FIXED_PRICE_PER_SEC,
+        });
+
+        await newCredit.save();
+        res.status(201).json(newCredit);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to create credit', error: error.message });
+    }
+};

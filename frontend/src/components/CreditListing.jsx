@@ -1,15 +1,49 @@
-// src/components/CreditsList.js
+import { useState, useEffect } from 'react';
 
-import React from 'react';
+export default function CreditsPage() {
+    const [credits, setCredits] = useState([]);
+    const [consumerId, setConsumerId] = useState('consumer_object_id_here'); // Replace with actual consumer ID
 
-const credits = [
-    { id: 1, producer: 'Green Solar Ltd.', price: 0.10, available: 100 },
-    { id: 2, producer: 'Eco Energy Inc.', price: 0.12, available: 75 },
-    { id: 3, producer: 'Sunrise Panels', price: 0.09, available: 150 },
-    { id: 4, producer: 'BrightFuture Solar', price: 0.11, available: 90 },
-];
+    useEffect(() => {
+        const fetchCredits = async () => {
+            try {
+                const res = await fetch('/api/credits');
+                const data = await res.json();
+                setCredits(data);
+            } catch (err) {
+                console.error('Error fetching credits:', err);
+            }
+        };
+        fetchCredits();
+    }, []);
 
-const CreditsList = () => {
+    const handleBuy = async (producerId, amount) => {
+        try {
+            const res = await fetch('/api/buy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ consumerId, producerId, amount }),
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                alert(`Purchase successful! You bought ${amount} SECs.`);
+                // Refresh the credits list to show updated amounts
+                setCredits((prevCredits) =>
+                    prevCredits.map((credit) =>
+                        credit.id === producerId
+                            ? { ...credit, available: credit.available - amount }
+                            : credit
+                    )
+                );
+            } else {
+                alert(data.message || 'Purchase failed.');
+            }
+        } catch (err) {
+            console.error('Error processing purchase:', err);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 p-8">
             <h1 className="text-4xl font-bold text-center text-green-700 mb-8">Available Solar Credits</h1>
@@ -30,7 +64,10 @@ const CreditsList = () => {
                                 <td className="p-4">${credit.price.toFixed(2)}</td>
                                 <td className="p-4">{credit.available} SECs</td>
                                 <td className="p-4">
-                                    <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                                    <button
+                                        onClick={() => handleBuy(credit.id, 10)} // Buy 10 SECs by default
+                                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                                    >
                                         Buy
                                     </button>
                                 </td>
@@ -41,6 +78,4 @@ const CreditsList = () => {
             </div>
         </div>
     );
-};
-
-export default CreditsList;
+}
