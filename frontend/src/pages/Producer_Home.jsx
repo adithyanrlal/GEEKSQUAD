@@ -1,24 +1,30 @@
-"use client"
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 const Producer_Home = () => {
   const currentCreditPrice = "$100";
   const governmentElectricityPrice = "$0.10/kWh";
 
-  const currentCredits = [
-    { id: 1, name: "Credit Pack A", price: "$50" },
-    { id: 2, name: "Credit Pack B", price: "$100" },
-    { id: 3, name: "Credit Pack C", price: "$200" },
-  ];
-
-  const upcomingCredits = [
-    { id: 1, name: "Future Pack X", price: "$40" },
-    { id: 2, name: "Future Pack Y", price: "$80" },
-    { id: 3, name: "Future Pack Z", price: "$150" },
-  ];
-
+  const [yourCredits, setYourCredits] = useState([]);
+  const [otherCredits, setOtherCredits] = useState([]);
   const [creditAmount, setCreditAmount] = useState(0);
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      const producerId = localStorage.getItem("producerId");
+      try {
+        const yourCreditsResponse = await axios.get(`http://localhost:3000/producers/${producerId}`);
+        setYourCredits(yourCreditsResponse.data);
+
+        const otherCreditsResponse = await axios.get(`http://localhost:3000/api/credits/${producerId}`);
+        setOtherCredits(otherCreditsResponse.data);
+      } catch (error) {
+        console.error("Error fetching credits:", error);
+      }
+    };
+
+    fetchCredits();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -43,30 +49,32 @@ const Producer_Home = () => {
       <main className="container mx-auto px-6 pb-8">
         <div className="flex flex-col md:grid-cols-2 gap-8 mb-8">
           {/* Current Credits Box */}
-          <div className="bg-white shadow-lg rounded-lg p-6">
+          {yourCredits && <div className="bg-white shadow-lg rounded-lg p-6">
             <h2 className="text-3xl font-semibold text-blue-600 mb-6">Current Credits</h2>
             <div className="space-y-4">
-              {currentCredits.map((credit) => (
-                <div key={credit.id} className="flex justify-between items-center p-4 bg-blue-50 rounded-md">
-                  <span className="text-lg font-medium">{credit.name}</span>
-                  <span className="text-blue-600 font-bold">{credit.price}</span>
+              {yourCredits.map((credit) => (
+                <div key={credit._id} className="flex justify-between items-center p-4 bg-blue-50 rounded-md">
+                  <span className="text-lg font-medium">{credit.producerId.name}</span>
+                  <span className="text-blue-600 font-bold">{credit.pricePerSEC.toFixed(2)}</span>
+                  <span className="text-blue-600 font-bold">{credit.creditsAvailable}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </div>}
 
           {/* Upcoming Credits Box */}
-          <div className="bg-white shadow-lg rounded-lg p-6">
+          {otherCredits && <div className="bg-white shadow-lg rounded-lg p-6">
             <h2 className="text-3xl font-semibold text-green-600 mb-6">Upcoming Credits</h2>
             <div className="space-y-4">
-              {upcomingCredits.map((credit) => (
-                <div key={credit.id} className="flex justify-between items-center p-4 bg-green-50 rounded-md">
-                  <span className="text-lg font-medium">{credit.name}</span>
-                  <span className="text-green-600 font-bold">{credit.price}</span>
+              {otherCredits.map((credit) => (
+                <div key={credit._id} className="flex justify-between items-center p-4 bg-green-50 rounded-md">
+                  <span className="text-lg font-medium">{credit.producerId.name}</span>
+                  <span className="text-blue-600 font-bold">{credit.pricePerSEC.toFixed(2)}</span>
+                  <span className="text-blue-600 font-bold">{credit.creditsAvailable}</span>
                 </div>
               ))}
             </div>
-          </div>
+          </div>}
         </div>
 
         {/* Sell Credits Form */}

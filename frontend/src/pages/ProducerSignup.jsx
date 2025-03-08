@@ -33,13 +33,14 @@ const ProducerSignup = () => {
         email,
         password,
       });
-      
-   
+
+
 
       if (response.status === 201) {
-        localStorage.setItem("token", response.data.token); // Store token
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("producerId", response.data.producer._id);
         setSuccessMessage("Signup successful! Redirecting...");
-         navigate("/producer-login")// Redirect
+        navigate("/producer-login")// Redirect
       }
     } catch (error) {
       console.error("Signup Error:", error.response?.data || error.message);
