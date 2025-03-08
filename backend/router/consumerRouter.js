@@ -1,6 +1,7 @@
 const express = require('express');
 const consumerController = require('../controller/consumerController');
 const { body } = require('express-validator');
+const { requireAuth } = require("../middlewares/ConsumerAuth")
 
 const router = express.Router();
 
@@ -17,9 +18,9 @@ const loginValidation = [
 ];
 
 // Define routes for consumerController
-router.get('/', consumerController.getAllConsumers);
-router.get('/:id', consumerController.getConsumerById);
-router.post('/', consumerController.createConsumer);
+router.get('/',requireAuth, consumerController.getAllConsumers);
+router.get('/:id',requireAuth, consumerController.getConsumerById);
+router.post('/', requireAuth,consumerController.createConsumer);
 // router.put('/:id', consumerController.updateProducer);
 // router.delete('/:id', consumerController.deleteProducer);
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const producerController = require('../controller/producerController');
 const { body } = require('express-validator');
+const { requireAuth } = require("../middlewares/ProducerAuth")
 
 const router = express.Router();
 
@@ -17,9 +18,9 @@ const loginValidation = [
 ];
 
 // Define routes for producerController
-router.get('/', producerController.getAllProducers);
-router.get('/:id', producerController.getProducerById);
-router.post('/', producerController.createProducer);
+router.get('/', requireAuth, producerController.getAllProducers);
+router.get('/:id', requireAuth, producerController.getProducerById);
+router.post('/', requireAuth, producerController.createProducer);
 // router.put('/:id', producerController.updateProducer);
 // router.delete('/:id', producerController.deleteProducer);
 
