@@ -22,7 +22,7 @@ const ProducerSignup = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-cyan-300">
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center mb-4">Producer Signup</h2>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
