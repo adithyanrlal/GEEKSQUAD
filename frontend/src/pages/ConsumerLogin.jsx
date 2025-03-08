@@ -17,7 +17,7 @@ const ConsumerLogin = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:3000/users/login", {
+      const response = await axios.post("http://localhost:3000/consumers/login", {
         email,
         password,
       });
@@ -28,7 +28,7 @@ const ConsumerLogin = () => {
       localStorage.setItem("token", response.data.token);
 
       // Redirect after successful login
-      navigate("/consumer-dashboard");
+      navigate("/consumer");
 
     } catch (error) {
       console.error("Login Error:", error);

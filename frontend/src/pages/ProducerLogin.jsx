@@ -27,10 +27,10 @@ const ProducerLogin = () => {
       localStorage.setItem("token", response.data.token);
 
       // Redirect after successful login
-      navigate("/producer-dashboard");
+      navigate("/producer");
 
-     
-      
+
+
       setError(""); // Clear errors
     } catch (error) {
       console.error("Login Failed:", error.response?.data || error.message);
@@ -73,7 +73,7 @@ const ProducerLogin = () => {
           </button>
         </form>
         <p className="text-sm text-center mt-3">
-          Don't have an account? <Link to='/producer-signup'className="text-blue-600">Sign Up</Link>
+          Don't have an account? <Link to='/producer-signup' className="text-blue-600">Sign Up</Link>
         </p>
         <Link to='/consumer-login'
           className="block text-center bg-green-600 text-white p-2 rounded hover:bg-blue-700 mt-4"

@@ -27,20 +27,20 @@ const ConsumerSignup = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:3000/users/signup", {
+      const response = await axios.post("http://localhost:3000/consumers/signup", {
         name,
         email,
         password,
       });
 
       console.log("Signup Successful:", response.data);
-      
+
       localStorage.setItem("token", response.data.token);
 
-  
-     
-        navigate("/consumer-login");
-     
+
+
+      navigate("/consumer-login");
+
     } catch (error) {
       console.error("Signup Failed:", error.response?.data || error.message);
       setError(error.response?.data?.message || "Signup failed. Please try again.");
