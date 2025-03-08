@@ -1,7 +1,7 @@
 
 
-
 const dotenv = require('dotenv');
+
 dotenv.config();  // to use environment variables
 const express = require('express')
 const cors = require('cors');
@@ -9,8 +9,8 @@ const cors = require('cors');
 const connectToDb = require('./db/db')
 const app = express()
 
-const userRoutes = require('./routes/user.routes');
 
+const userRoutes = require('./routes/user.routes');
 const producerRoutes = require('./routes/producer.routes');
 
 
