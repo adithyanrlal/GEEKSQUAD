@@ -1,19 +1,41 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const ProducerLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  const handleLogin = (e) => {
+  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
+  const handleLogin = async (e) => {
     e.preventDefault();
+
     if (!email || !password) {
       setError("Please fill in all fields");
       return;
     }
-    setError("");
-    console.log("Logging in with", { email, password });
+
+    try {
+      const response = await axios.post("http://localhost:3000/producers/login", {
+        email,
+        password,
+      });
+      console.log("Login Response:", response.data);
+
+      // Store token in local storage
+      localStorage.setItem("token", response.data.token);
+
+      // Redirect after successful login
+      navigate("/producer-dashboard");
+
+     
+      
+      setError(""); // Clear errors
+    } catch (error) {
+      console.error("Login Failed:", error.response?.data || error.message);
+      setError(error.response?.data?.message || "Login failed");
+    }
   };
 
   return (
@@ -21,6 +43,7 @@ const ProducerLogin = () => {
       <div className="bg-white p-6 rounded-lg shadow-lg w-96">
         <h2 className="text-2xl font-bold text-center mb-4">Producer Login</h2>
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        {success && <p className="text-green-500 text-sm text-center">{success}</p>}
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-sm font-medium">Email</label>
