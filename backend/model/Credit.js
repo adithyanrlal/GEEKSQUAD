@@ -1,5 +1,4 @@
-import mongoose from 'mongoose';
-
+const mongoose = require('mongoose');
 const CreditSchema = new mongoose.Schema({
     producerId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -22,4 +21,4 @@ const CreditSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-export default mongoose.models.Credit || mongoose.model('Credit', CreditSchema);
+module.exports = mongoose.models.Credit || mongoose.model('Credit', CreditSchema);

@@ -1,10 +1,12 @@
-import Credit from '../model/Credit';
-import Consumer from '../model/Consumer';
-import Producer from '../model/Producer';
+const Consumer = require("../model/Consumer");
+const Credit = require("../model/Credit");
+const Producer = require("../model/Producer");
+
+
 
 const FIXED_PRICE_PER_SEC = 0.1;
 
-export const getAllCredits = async (req, res) => {
+const getAllCredits = async (req, res) => {
     try {
         const credits = await Credit.find();
         res.status(200).json(credits);
@@ -13,7 +15,7 @@ export const getAllCredits = async (req, res) => {
     }
 };
 
-export const buyCredits = async (req, res) => {
+const buyCredits = async (req, res) => {
     const { consumerId, creditId, amount } = req.body;
 
     try {
@@ -52,13 +54,13 @@ export const buyCredits = async (req, res) => {
     }
 };
 
-export const createCredit = async (req, res) => {
-    const { producerId, producerName, creditsAvailable, pricePerSEC } = req.body;
+const createCredit = async (req, res) => {
+    const { producerId, creditsAvailable, pricePerSEC } = req.body;
 
     try {
         const newCredit = new Credit({
             producerId,
-            producerName,
+
             creditsAvailable,
             pricePerSEC: pricePerSEC || FIXED_PRICE_PER_SEC,
         });
@@ -69,3 +71,6 @@ export const createCredit = async (req, res) => {
         res.status(500).json({ message: 'Failed to create credit', error: error.message });
     }
 };
+module.exports = {
+    getAllCredits, createCredit, buyCredits
+}
