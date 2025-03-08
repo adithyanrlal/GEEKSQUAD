@@ -4,33 +4,35 @@
 import './App.css'
 import ConsumerHome from './components/Consumer_Home'
 import ProducerHome from './components/Producer_Home'
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import ConsumerLogin from './pages/ConsumerLogin';
 import ProducerLogin from './pages/ProducerLogin';
 import ProducerSignup from './pages/ProducerSignup';
 import ConsumerSignup from './pages/ConsumerSignup';
+import CreditsList from './components/CreditListing';
 
 function App() {
   return (
-    <BrowserRouter>
+    // <BrowserRouter>
 
-      <div>
-        <Routes>
-          <Route path='/consumer-login' element={<ConsumerLogin />} />
-          <Route path='/producer-login' element={<ProducerLogin />} />
-          <Route path='/consumer-signup' element={<ConsumerSignup />} />
-          <Route path='/producer-signup' element={<ProducerSignup />} />
-          <Route path="/consumer" element={<ConsumerHome/>}/>
-          <Route path="/producer" element={<ProducerHome/>}/>
-        </Routes>
-      </div>
-    </BrowserRouter>
+    //   <div>
+    //     <Routes>
+    //       <Route path='/consumer-login' element={<ConsumerLogin />} />
+    //       <Route path='/producer-login' element={<ProducerLogin />} />
+    //       <Route path='/consumer-signup' element={<ConsumerSignup />} />
+    //       <Route path='/producer-signup' element={<ProducerSignup />} />
+    //       <Route path="/consumer" element={<ConsumerHome/>}/>
+    //       <Route path="/producer" element={<ProducerHome/>}/>
+    //     </Routes>
+    //   </div>
+    // </BrowserRouter>
+    <CreditsList />
   );
-   
 
-  
-    
- 
+
+
+
+
 }
 
 export default App;
