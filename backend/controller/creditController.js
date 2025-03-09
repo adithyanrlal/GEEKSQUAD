@@ -25,12 +25,15 @@ const getOtherCredits = async (req, res) => {
 };
 
 const buyCredits = async (req, res) => {
-    const { consumerId, creditId, amount } = req.body;
+    const { id, creditId, amount } = req.body;
+    console.log(id, creditId, amount);
 
     try {
-        const consumer = await Consumer.findById(consumerId);
+        const consumer = await Consumer.findById(id);
         const credit = await Credit.findById(creditId);
         const producer = await Producer.findById(credit.producerId);
+        console.log(consumer, credit, producer);
+
 
         if (!consumer || !credit || !producer) {
             return res.status(404).json({ message: 'Consumer, Credit, or Producer not found' });
@@ -40,26 +43,30 @@ const buyCredits = async (req, res) => {
         console.log(credit.creditsAvailable, amount);
 
         if (consumer.walletBalance < totalCost) {
+            console.log(consumer.walletBalance, totalCost);
             return res.status(400).json({ message: 'Insufficient balance' });
         }
 
         if (credit.creditsAvailable < amount) {
+            console.log(credit.creditsAvailable, amount);
             return res.status(400).json({ message: 'Not enough credits available' });
         }
 
         // Update balances
+        console.log(credit.creditsAvailable, amount);
         consumer.walletBalance -= totalCost;
         consumer.creditsOwned += amount;
 
         producer.walletBalance += totalCost;
         credit.creditsAvailable -= amount;
-
+        console.log(credit.creditsAvailable, amount);
         await consumer.save();
         await producer.save();
-        if (credit.creditsAvailable === 0) {
-            await credit.remove();
-            return res.status(200).json({ message: 'Transaction successful', amount, totalCost });
-        }
+        // if (credit.creditsAvailable == 0) {
+        //     console.log('Credit removed');
+        //     await credit.remove();
+        //     return res.status(200).json({ message: 'Transaction successful', amount, totalCost });
+        // }
         await credit.save();
 
         res.status(200).json({ message: 'Transaction successful', amount, totalCost });
@@ -70,16 +77,10 @@ const buyCredits = async (req, res) => {
 
 const createCredit = async (req, res) => {
     const { producerId, creditsAvailable, pricePerSEC } = req.body;
-
+    console.log(producerId, creditsAvailable, pricePerSEC);
     try {
-        const newCredit = new Credit({
-            producerId,
-
-            creditsAvailable,
-            pricePerSEC: pricePerSEC || FIXED_PRICE_PER_SEC,
-        });
-
-        await newCredit.save();
+        const newCredit = await Credit.create({ producerId, creditsAvailable, pricePerSEC });
+        console.log(newCredit);
         res.status(201).json(newCredit);
     } catch (error) {
         res.status(500).json({ message: 'Failed to create credit', error: error.message });

@@ -93,6 +93,7 @@ const ConsumerLogin = () => {
 
       // Store token in local storage
       localStorage.setItem("token", response.data.token);
+      localStorage.setItem("consumerId", response.data._id);
 
       // Redirect after successful login
       navigate("/consumer");
@@ -201,7 +202,7 @@ const ConsumerLogin = () => {
           <motion.div className="text-center" variants={itemVariants}>
             <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
             <p className="mt-3 text-sm text-gray-300">
-              Sign in to your Consumer account
+              Sign in to your Producer account
             </p>
           </motion.div>
 

@@ -2,18 +2,28 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const Producer_Home = () => {
-  const currentCreditPrice = "$100";
+  const currentCreditPrice = 0.12
   const governmentElectricityPrice = "$0.10/kWh";
+
+  const [creditsAvailable, setCreditsAvailable] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(0);
 
   const [yourCredits, setYourCredits] = useState([]);
   const [otherCredits, setOtherCredits] = useState([]);
   const [creditAmount, setCreditAmount] = useState(0);
+  const [newCreditAmount, setNewCreditAmount] = useState(0);
 
   useEffect(() => {
     const fetchCredits = async () => {
       const producerId = localStorage.getItem("producerId");
       try {
+
+        const yourCreditsAvailable = await axios.get(`http://localhost:3000/producers/${producerId}`);
+        setCreditsAvailable(yourCreditsAvailable.data.creditsAvailable);
+        setWalletBalance(yourCreditsAvailable.data.walletBalance);
+
         const yourCreditsResponse = await axios.get(`http://localhost:3000/producers/${producerId}`);
+        console.log("your credits:", yourCreditsResponse.data)
         setYourCredits(yourCreditsResponse.data);
 
         const otherCreditsResponse = await axios.get(`http://localhost:3000/api/credits/${producerId}`);
@@ -22,14 +32,49 @@ const Producer_Home = () => {
         console.error("Error fetching credits:", error);
       }
     };
-
+    console.log(yourCredits)
     fetchCredits();
-  }, []);
+  }, [creditAmount]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Credits to sell:", creditAmount);
+    try {
+      const producerId = localStorage.getItem("producerId");
+      const response = await axios.post(`http://localhost:3000/api/credits/`, {
+        producerId,
+        creditsAvailable: creditAmount,
+        pricePerSEC: currentCreditPrice,
+      });
+      console.log("Credits listed for selling:", response.data);
+      alert("Credits sold successfully");
+      fetchCredits();
+    } catch (error) {
+      console.error("Error selling credits:", error);
+    }
+
+    // Optionally, you can refetch the credits to update the UI
     setCreditAmount(0);
+
+  }
+
+
+  const handleUpdateCredits = async (e) => {
+    e.preventDefault();
+    const producerId = localStorage.getItem("producerId");
+    try {
+      const response = await axios.patch(`http://localhost:3000/producers/${producerId}`, {
+        creditsAvailable: newCreditAmount,
+      });
+      console.log("Credits updated:", response.data);
+      setNewCreditAmount(0);
+      setCreditsAvailable(response.data.creditsAvailable);
+      // Optionally, you can refetch the credits to update the UI
+      alert("Credits updated successfully");
+
+    } catch (error) {
+      console.error("Error updating credits:", error);
+    }
   };
 
   return (
@@ -44,13 +89,26 @@ const Producer_Home = () => {
           </ul>
         </div>
       </nav>
-
+      {/* Credit and Wallet Info */}
+      <div className="container mx-auto px-6 py-4 bg-white shadow-md rounded-lg mb-6">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">Credit and Wallet Information</h2>
+        <div className="flex justify-between items-center">
+          <div className="text-lg">
+            <p className="mb-2">Current Credit Price: <span className="font-bold">{currentCreditPrice}</span></p>
+            <p>Government Electricity Price: <span className="font-bold">{governmentElectricityPrice}</span></p>
+          </div>
+          <div className="text-lg">
+            <p className="mb-2">Your Wallet Balance: <span className="font-bold">{walletBalance}</span></p>
+            <p>Total Credits Owned: {creditsAvailable}</p>
+          </div>
+        </div>
+      </div>
       {/* Main Content */}
       <main className="container mx-auto px-6 pb-8">
         <div className="flex flex-col md:grid-cols-2 gap-8 mb-8">
           {/* Current Credits Box */}
-          {yourCredits && <div className="bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-3xl font-semibold text-blue-600 mb-6">Current Credits</h2>
+          {yourCredits.length > 0 && <div className="bg-white shadow-lg rounded-lg p-6">
+            <h2 className="text-3xl font-semibold text-blue-600 mb-6">Your Credits</h2>
             <div className="space-y-4">
               {yourCredits.map((credit) => (
                 <div key={credit._id} className="flex justify-between items-center p-4 bg-blue-50 rounded-md">
@@ -63,8 +121,8 @@ const Producer_Home = () => {
           </div>}
 
           {/* Upcoming Credits Box */}
-          {otherCredits && <div className="bg-white shadow-lg rounded-lg p-6">
-            <h2 className="text-3xl font-semibold text-green-600 mb-6">Upcoming Credits</h2>
+          {otherCredits.length > 0 && <div className="bg-white shadow-lg rounded-lg p-6">
+            <h2 className="text-3xl font-semibold text-green-600 mb-6">Other Credits</h2>
             <div className="space-y-4">
               {otherCredits.map((credit) => (
                 <div key={credit._id} className="flex justify-between items-center p-4 bg-green-50 rounded-md">
@@ -76,7 +134,29 @@ const Producer_Home = () => {
             </div>
           </div>}
         </div>
-
+        {/* Update Credits Owned Form */}
+        <div className="bg-white shadow-lg rounded-lg p-6">
+          <h2 className="text-3xl font-semibold text-gray-700 mb-6">Update Credits Owned</h2>
+          <form onSubmit={handleUpdateCredits} className="space-y-4">
+            <div>
+              <label className="block text-gray-600 mb-2">New Credits Owned</label>
+              <input
+                type="number"
+                value={newCreditAmount}
+                onChange={(e) => setNewCreditAmount(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded-lg"
+                placeholder="Enter new credits amount"
+                min="0"
+                required
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
+              Update Credits
+            </button>
+          </form>
+        </div>
         {/* Sell Credits Form */}
         <div className="bg-white shadow-lg rounded-lg p-6">
           <h2 className="text-3xl font-semibold text-gray-700 mb-6">Sell Your Credits</h2>
@@ -85,7 +165,7 @@ const Producer_Home = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-gray-600 mb-2">Amount of Credits to Sell</label>
+              <label className="block text-gray-600 mb-2">No: of Credits to Sell</label>
               <input
                 type="number"
                 value={creditAmount}

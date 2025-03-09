@@ -6,7 +6,7 @@ import axios from "axios";
 // Particle Background Component
 const ParticleBackground = () => {
   const [particles, setParticles] = useState([]);
-  
+
   useEffect(() => {
     // Create 50 particles with random properties
     const newParticles = Array.from({ length: 50 }, (_, i) => ({
@@ -18,12 +18,12 @@ const ParticleBackground = () => {
       speed: Math.random() * 0.5 + 0.2,
       direction: Math.random() > 0.5 ? 1 : -1
     }));
-    
+
     setParticles(newParticles);
-    
+
     // Animate particles
     const interval = setInterval(() => {
-      setParticles(prev => 
+      setParticles(prev =>
         prev.map(particle => ({
           ...particle,
           x: (particle.x + particle.speed * particle.direction + 100) % 100,
@@ -31,14 +31,14 @@ const ParticleBackground = () => {
         }))
       );
     }, 50);
-    
+
     return () => clearInterval(interval);
   }, []);
-  
+
   return (
     <div className="absolute inset-0 overflow-hidden">
       {particles.map(particle => (
-        <div 
+        <div
           key={particle.id}
           className="absolute rounded-full bg-white"
           style={{
@@ -58,7 +58,7 @@ const ParticleBackground = () => {
 
 // Decorative geometric element
 const GeometricElement = ({ className, style }) => (
-  <div 
+  <div
     className={`absolute ${className}`}
     style={style}
   />
@@ -71,7 +71,7 @@ const ProducerSignup = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [animateCard, setAnimateCard] = useState(false);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Trigger card animation after component mounts
@@ -79,7 +79,7 @@ const ProducerSignup = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSignup = async(e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     if (!email || !password || !confirmPassword) {
       setError("Please fill in all fields");
@@ -99,30 +99,32 @@ const ProducerSignup = () => {
 
 
 
-      if (response.status === 201) {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("producerId", response.data.producer._id);
-        setSuccessMessage("Signup successful! Redirecting...");
-        navigate("/producer-login")// Redirect
-      }
+      console.log("Signup Successful:", response.data);
+
+      localStorage.setItem("token", response.data.token);
+
+
+
+      navigate("/producer-login");
     } catch (error) {
       console.error("Signup Failed:", error.response?.data || error.message);
       setError(error.response?.data?.message || "Signup failed. Please try again.");
-    }  };
+    }
+  };
 
   // Card animation variants
   const cardVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 50, 
-      scale: 0.95 
+    hidden: {
+      opacity: 0,
+      y: 50,
+      scale: 0.95
     },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
+    visible: {
+      opacity: 1,
+      y: 0,
       scale: 1,
-      transition: { 
-        duration: 0.6, 
+      transition: {
+        duration: 0.6,
         ease: "easeOut",
         staggerChildren: 0.1,
         delayChildren: 0.3
@@ -132,8 +134,8 @@ const ProducerSignup = () => {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       transition: { duration: 0.5 }
     }
@@ -143,9 +145,9 @@ const ProducerSignup = () => {
     <div className="relative min-h-screen w-full bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-900 flex items-center justify-center overflow-hidden">
       {/* Animated background */}
       <ParticleBackground />
-      
+
       {/* Decorative geometric elements */}
-      <GeometricElement 
+      <GeometricElement
         className="w-64 h-64 rounded-full"
         style={{
           top: '15%',
@@ -153,7 +155,7 @@ const ProducerSignup = () => {
           background: 'radial-gradient(circle, rgba(79, 70, 229, 0.15) 0%, rgba(79, 70, 229, 0) 70%)',
         }}
       />
-      <GeometricElement 
+      <GeometricElement
         className="w-96 h-96 rounded-full"
         style={{
           bottom: '10%',
@@ -161,7 +163,7 @@ const ProducerSignup = () => {
           background: 'radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0) 70%)',
         }}
       />
-      <GeometricElement 
+      <GeometricElement
         className="w-32 h-32 rotate-45"
         style={{
           top: '30%',
@@ -169,7 +171,7 @@ const ProducerSignup = () => {
           border: '1px solid rgba(255, 255, 255, 0.05)',
         }}
       />
-      <GeometricElement 
+      <GeometricElement
         className="w-64 h-1"
         style={{
           top: '60%',
@@ -177,9 +179,9 @@ const ProducerSignup = () => {
           background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%)',
         }}
       />
-      
+
       {/* Logo/Branding */}
-      <motion.div 
+      <motion.div
         className="absolute top-16 left-1/2 transform -translate-x-1/2 z-10"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -191,11 +193,11 @@ const ProducerSignup = () => {
               <path d="M6.25 6.375a4.125 4.125 0 118.25 0 4.125 4.125 0 01-8.25 0zM3.25 19.125a7.125 7.125 0 0114.25 0v.003l-.001.119a.75.75 0 01-.363.63 13.067 13.067 0 01-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 01-.364-.63l-.001-.122zM19.75 7.5a.75.75 0 00-1.5 0v2.25H16a.75.75 0 000 1.5h2.25v2.25a.75.75 0 001.5 0v-2.25H22a.75.75 0 000-1.5h-2.25V7.5z" />
             </svg>
           </div> */}
-        </div> 
+        </div>
       </motion.div>
-      
+
       {/* Signup form card */}
-      <motion.div 
+      <motion.div
         className="w-full max-w-md px-4 z-10 mt-24"
         initial="hidden"
         animate={animateCard ? "visible" : "hidden"}
@@ -208,16 +210,16 @@ const ProducerSignup = () => {
               Join us today and start your journey
             </p>
           </motion.div>
-          
+
           {error && (
-            <motion.div 
+            <motion.div
               variants={itemVariants}
               className="p-3 bg-red-500/20 border border-red-400/30 rounded-lg text-red-200 text-sm text-center"
             >
               {error}
             </motion.div>
           )}
-          
+
           <motion.form onSubmit={handleSignup} className="space-y-5" variants={itemVariants}>
             <div>
               <label htmlFor="text" className="block text-sm font-medium text-gray-300 mb-1">
@@ -250,7 +252,7 @@ const ProducerSignup = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
-            
+
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
                 Password
@@ -267,7 +269,7 @@ const ProducerSignup = () => {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-            
+
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">
                 Confirm Password
@@ -284,7 +286,7 @@ const ProducerSignup = () => {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
-            
+
             <motion.button
               type="submit"
               className="group relative w-full flex justify-center py-4 px-4 border border-indigo-500/50 text-lg font-medium rounded-xl text-white bg-indigo-600/80 hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-70 transition-all duration-300 transform hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-600/20"
@@ -299,7 +301,7 @@ const ProducerSignup = () => {
               Create Account
             </motion.button>
           </motion.form>
-          
+
           <motion.div className="pt-4 text-center" variants={itemVariants}>
             <p className="text-sm text-gray-400">
               Already have an account?{" "}
@@ -309,8 +311,8 @@ const ProducerSignup = () => {
             </p>
           </motion.div>
         </div>
-        
-        <motion.div 
+
+        <motion.div
           className="mt-8 text-center text-xs text-gray-500 flex items-center justify-center space-x-4"
           variants={itemVariants}
         >

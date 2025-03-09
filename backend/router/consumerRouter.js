@@ -18,10 +18,10 @@ const loginValidation = [
 ];
 
 // Define routes for consumerController
-router.get('/',requireAuth, consumerController.getAllConsumers);
-router.get('/:id',requireAuth, consumerController.getConsumerById);
-router.post('/', requireAuth,consumerController.createConsumer);
-// router.put('/:id', consumerController.updateProducer);
+router.get('/', requireAuth, consumerController.getAllConsumers);
+router.get('/:id', requireAuth, consumerController.getConsumerById);
+router.post('/', requireAuth, consumerController.createConsumer);
+router.patch('/:id', consumerController.updateConsumerWallet);
 // router.delete('/:id', consumerController.deleteProducer);
 
 router.post('/signup', signupValidation, consumerController.signup);

@@ -2,21 +2,21 @@ import axios from 'axios';
 import clsx from 'clsx';
 import React, { useState, useEffect, useRef } from 'react';
 
-const credits = [
-    { id: 1, producer: 'Green Solar Ltd.', price: 0.10, available: 100 },
-    { id: 2, producer: 'Eco Energy Inc.', price: 0.12, available: 75 },
-    { id: 3, producer: 'Sunrise Panels', price: 0.09, available: 150 },
-    { id: 4, producer: 'BrightFuture Solar', price: 0.11, available: 90 },
-    { id: 5, producer: 'Sunshine Solar', price: 0.08, available: 200 },
-    { id: 6, producer: 'Solar Power Inc.', price: 0.13, available: 50 },
-];
+
 
 const Consumer_Home = () => {
+    const currentCreditPrice = 0.12
+    const governmentElectricityPrice = "$0.10/kWh";
+
+    const [creditsAvailable, setCreditsAvailable] = useState(0);
+    const [walletBalance, setWalletBalance] = useState(0);
+
+    const [newWalletAmount, setNewWalletAmount] = useState(0);
 
     const [credits, setCredits] = useState([]);
     const [consumerId, setConsumerId] = useState('67cc443689565fff224f3517'); // Replace with actual consumer ID
 
-    const [walletBalance, setWalletBalance] = useState(500);
+    // const [walletBalance, setWalletBalance] = useState(500);
     const [availableCredits, setAvailableCredits] = useState(300);
     const [expandedCard, setExpandedCard] = useState(null);
     const [walletOpen, setWalletOpen] = useState(false);
@@ -25,6 +25,24 @@ const Consumer_Home = () => {
 
     const handleCardClick = (id) => {
         setExpandedCard(expandedCard === id ? null : id);
+    };
+
+    const handleUpdateWallet = async (e) => {
+        e.preventDefault();
+        const consumerId = localStorage.getItem("consumerId");
+        try {
+            const response = await axios.patch(`http://localhost:3000/consumers/${consumerId}`, {
+                walletBalance: newWalletAmount,
+            });
+            console.log("Wallet updated:", response.data);
+            setNewWalletAmount(0);
+            setWalletBalance(response.data.walletBalance);
+            // Optionally, you can refetch the credits to update the UI
+            alert("Wallet updated successfully");
+
+        } catch (error) {
+            console.error("Error updating wallet:", error);
+        }
     };
 
     // Close dropdown when clicking outside
@@ -42,10 +60,18 @@ const Consumer_Home = () => {
 
     useEffect(() => {
         const fetchCredits = async () => {
+            const consumerId = localStorage.getItem('consumerId');
             try {
+
+
                 const res = await axios.get('http://localhost:3000/api/credits');
                 console.log(res.data);
                 setCredits(res.data);
+
+                const yourCreditsAvailable = await axios.get(`http://localhost:3000/consumers/${consumerId}`);
+                console.log(yourCreditsAvailable.data);
+                setCreditsAvailable(yourCreditsAvailable.data.creditsOwned);
+                setWalletBalance(yourCreditsAvailable.data.walletBalance);
             } catch (err) {
                 console.error('Error fetching credits:', err);
             }
@@ -53,31 +79,57 @@ const Consumer_Home = () => {
         fetchCredits();
     }, []);
 
-    const handleBuy = async (creditId, amount) => {
+    const handleBuy = async (producerId, price, amount) => {
+        if (walletBalance < price * amount) {
+            alert('Insufficient balance!');
+            return;
+        }
+
+        // Optimistic UI update
+        setWalletBalance((prev) => prev - price * amount);
+        setCredits((prevCredits) =>
+            prevCredits.map((credit) =>
+                credit.producerId === producerId
+                    ? { ...credit, available: credit.available - amount }
+                    : credit
+            )
+        );
+
         try {
-            const res = await axios.post('http://localhost:3000/api/credits/buy', {
-                consumerId,
-                creditId,
+            // API call to process the transaction
+            const response = await axios.post('http://localhost:3000/api/transactions/buy', {
+                consumerId: user.id,
+                producerId,
+                price,
                 amount,
             });
 
-            if (res.status === 200) {
-                alert(`Purchase successful! You bought ${amount} SECs.`);
-                // Refresh the credits list to show updated amounts
-                setCredits((prevCredits) =>
-                    prevCredits.map((credit) =>
-                        credit.id === producerId
-                            ? { ...credit, available: credit.available - amount }
-                            : credit
-                    )
-                );
-            } else {
-                alert(res.data.message || 'Purchase failed.');
-            }
-        } catch (err) {
-            console.error('Error processing purchase:', err);
+            // Update state with server response (in case of any corrections)
+            setWalletBalance(response.data.consumer.walletBalance);
+            setCredits((prevCredits) =>
+                prevCredits.map((credit) =>
+                    credit.producerId === producerId
+                        ? { ...credit, available: response.data.producer.creditsAvailable }
+                        : credit
+                )
+            );
+        } catch (error) {
+            console.error('Transaction failed:', error.response?.data?.message);
+
+            // Rollback UI changes if the API call fails
+            setWalletBalance((prev) => prev + price * amount);
+            setCredits((prevCredits) =>
+                prevCredits.map((credit) =>
+                    credit.producerId === producerId
+                        ? { ...credit, available: credit.available + amount }
+                        : credit
+                )
+            );
+
+            alert('Transaction failed! Please try again.');
         }
     };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-200">
@@ -115,7 +167,19 @@ const Consumer_Home = () => {
                     </ul>
                 </div>
             </nav> */}
-
+            <div className="container mx-auto px-6 py-4 bg-white shadow-md rounded-lg mb-6">
+                <h2 className="text-2xl font-semibold text-gray-700 mb-4">Credit and Wallet Information</h2>
+                <div className="flex justify-between items-center">
+                    <div className="text-lg">
+                        <p className="mb-2">Current Credit Price: <span className="font-bold">{currentCreditPrice}</span></p>
+                        <p>Government Electricity Price: <span className="font-bold">{governmentElectricityPrice}</span></p>
+                    </div>
+                    <div className="text-lg">
+                        <p className="mb-2">Your Wallet Balance: <span className="font-bold">{walletBalance}</span></p>
+                        <p>Total Credits Owned: {creditsAvailable}</p>
+                    </div>
+                </div>
+            </div>
             {/* Available Solar Credits */}
             <h1 className="text-5xl font-extrabold text-center text-green-700 mb-12 drop-shadow-md">
                 Available Solar Credits
@@ -153,6 +217,29 @@ const Consumer_Home = () => {
                         )} */}
                     </div>
                 ))}
+            </div>
+            {/* Update Credits Owned Form */}
+            <div className="bg-white shadow-lg rounded-lg p-6">
+                <h2 className="text-3xl font-semibold text-gray-700 mb-6">Update Wallet Amount</h2>
+                <form onSubmit={handleUpdateWallet} className="space-y-4">
+                    <div>
+                        <label className="block text-gray-600 mb-2">Enter amount:</label>
+                        <input
+                            type="number"
+                            value={newWalletAmount}
+                            onChange={(e) => setNewWalletAmount(e.target.value)}
+                            className="w-full p-2 border border-gray-300 rounded-lg"
+                            placeholder="Enter new credits amount"
+                            min="0"
+                            required
+                        />
+                    </div>
+                    <button
+                        type="submit"
+                        className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
+                        Update Wallet
+                    </button>
+                </form>
             </div>
         </div>
     );

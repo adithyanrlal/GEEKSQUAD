@@ -19,7 +19,7 @@ const loginValidation = [
 
 // Define routes for producerController
 router.get('/', requireAuth, producerController.getAllProducers);
-router.get('/:id', producerController.getProducerById);
+router.get('/:id', producerController.getProducerCredits);
 router.post('/', requireAuth, producerController.createProducer);
 router.patch('/:id', producerController.updateProducer);
 // router.delete('/:id', producerController.deleteProducer);

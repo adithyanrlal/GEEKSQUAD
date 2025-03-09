@@ -51,7 +51,7 @@ exports.getConsumerCredits = async (req, res) => {
 exports.updateConsumerWallet = async (req, res) => {
     try {
         const { walletBalance } = req.body;
-        const consumer = await Consumer.findByIdAndUpdate(req.params.id, { walletBalance }, { new: true });
+        const consumer = await Consumer.findByIdAndUpdate(req.params.id, { $inc: { walletBalance: walletBalance } }, { new: true });
         if (!consumer) {
             return res.status(404).json({ message: 'Consumer not found' });
         }
@@ -149,7 +149,7 @@ exports.login = async (req, res) => {
         // Generate JWT token
         const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ token });
+        res.status(200).json({ token, _id: user._id });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
     }
